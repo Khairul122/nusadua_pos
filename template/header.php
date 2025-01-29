@@ -1,4 +1,9 @@
-<?php include 'koneksi.php'; ?>
+<?php
+include 'koneksi.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start(); 
+}
+?>
 <!doctype html>
 <html lang="en">
 
@@ -41,7 +46,8 @@
         href="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/css/jsvectormap.min.css"
         integrity="sha256-+uGLJmmTKOqBr+2E6KDYs/NRsHxSkONXFHUL0fy2O/4="
         crossorigin="anonymous" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
     
 
 </head>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

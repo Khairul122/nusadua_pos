@@ -7,14 +7,23 @@ if (!isset($_SESSION['id_member'])) {
     exit();
 }
 
-$id_member = $_SESSION['id_member'];
+if (!isset($_GET['kode_pemesanan'])) {
+    echo "<script>alert('Kode pemesanan tidak ditemukan!'); window.location.href='riwayat-pesanan.php';</script>";
+    exit();
+}
 
-// Ambil data pesanan berdasarkan kode_pemesanan, tidak menampilkan duplikasi
-$query = "SELECT DISTINCT p.kode_pemesanan, p.tanggal_pemesanan, p.status_pemesanan
+$kode_pemesanan = $_GET['kode_pemesanan'];
+
+// Ambil detail pesanan berdasarkan kode_pemesanan
+$query = "SELECT p.kode_pemesanan, p.tanggal_pemesanan, pr.nama_produk, p.jumlah, p.harga_satuan, 
+                 (p.jumlah * p.harga_satuan) AS total_harga, p.status_pemesanan 
           FROM pemesanan p
-          WHERE p.id_member = '$id_member'
-          ORDER BY p.tanggal_pemesanan DESC";
+          JOIN produk pr ON p.id_produk = pr.id_produk
+          WHERE p.kode_pemesanan = '$kode_pemesanan'";
 $result = mysqli_query($koneksi, $query);
+
+// Ambil satu baris pertama untuk mendapatkan `tanggal_pemesanan` dan `status_pemesanan`
+$row_header = mysqli_fetch_assoc($result);
 ?>
 
 <!DOCTYPE html>
@@ -23,7 +32,7 @@ $result = mysqli_query($koneksi, $query);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Riwayat Pesanan - Sistem Penjualan</title>
+    <title>Detail Pesanan - Sistem Penjualan</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .footer {
@@ -69,7 +78,7 @@ $result = mysqli_query($koneksi, $query);
                         <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#caraPesanModal">Cara Pesan</a></li>
                         <?php if (isset($_SESSION['id_member'])): ?>
                             <li class="nav-item">
-                                <a class="nav-link active" href="riwayat-pemesanan.php">Pesanan Saya</a>
+                                <a class="nav-link" href="riwayat-pemesanan.php">Pesanan Saya</a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
@@ -89,39 +98,54 @@ $result = mysqli_query($koneksi, $query);
             </div>
         </nav>
 
-        <!-- Konten Riwayat Pesanan -->
+        <!-- Konten Detail Pesanan -->
         <div class="container mt-5">
-            <h1 class="text-center mb-4">Riwayat Pesanan Saya</h1>
-            <table class="table table-bordered">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Kode Pemesanan</th>
-                        <th>Tanggal Pemesanan</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (mysqli_num_rows($result) > 0) : ?>
-                        <?php while ($row = mysqli_fetch_assoc($result)) : ?>
+            <h1 class="text-center mb-4">Detail Pesanan: <?= htmlspecialchars($kode_pemesanan); ?></h1>
+
+            <div class="card">
+                <div class="card-header">
+                    <strong>Kode Pemesanan:</strong> <?= htmlspecialchars($kode_pemesanan); ?> <br>
+                    <strong>Tanggal Pemesanan:</strong> <?= htmlspecialchars($row_header['tanggal_pemesanan'] ?? '-'); ?>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead class="table-dark">
                             <tr>
-                                <td><?= htmlspecialchars($row['kode_pemesanan']); ?></td>
-                                <td><?= htmlspecialchars($row['tanggal_pemesanan']); ?></td>
-                                <td>
-                                    <span class="badge bg-primary"><?= htmlspecialchars($row['status_pemesanan']); ?></span>
-                                </td>
-                                <td>
-                                    <a href="detail-pesanan.php?kode_pemesanan=<?= $row['kode_pemesanan']; ?>" class="btn btn-info btn-sm">Lihat Detail</a>
-                                </td>
+                                <th>Nama Produk</th>
+                                <th>Jumlah</th>
+                                <th>Harga Satuan</th>
+                                <th>Total Harga</th>
                             </tr>
-                        <?php endwhile; ?>
-                    <?php else : ?>
-                        <tr>
-                            <td colspan="4" class="text-center">Belum ada pesanan.</td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody>
+                            <?php
+                            // Reset result set untuk mengulang query
+                            mysqli_data_seek($result, 0);
+                            while ($row = mysqli_fetch_assoc($result)) :
+                            ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($row['nama_produk']); ?></td>
+                                    <td><?= htmlspecialchars($row['jumlah']); ?></td>
+                                    <td>Rp <?= number_format($row['harga_satuan'], 0, ',', '.'); ?></td>
+                                    <td>Rp <?= number_format($row['total_harga'], 0, ',', '.'); ?></td>
+                                </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer">
+                    <strong>Status Pesanan:</strong>
+                    <span class="badge bg-primary"><?= htmlspecialchars($row_header['status_pemesanan'] ?? 'Tidak Diketahui'); ?></span>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="riwayat-pemesanan.php" class="btn btn-secondary">Kembali</a>
+                <a href="c-faktur.php?kode_pemesanan=<?= htmlspecialchars($kode_pemesanan); ?>" target="_blank" class="btn btn-primary">
+                    Cetak Faktur
+                </a>
+            </div>
+
         </div>
 
         <!-- Modal Cara Pesan -->
@@ -158,11 +182,7 @@ $result = mysqli_query($koneksi, $query);
             </div>
         </footer>
     </div>
-
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Auto Update Tahun -->
     <script>
         document.getElementById("year").innerText = new Date().getFullYear();
     </script>

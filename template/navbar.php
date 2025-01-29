@@ -1,4 +1,4 @@
-<?php session_start(); ?>
+
 <nav class="app-header navbar navbar-expand bg-body">
     <div class="container-fluid">
         <ul class="navbar-nav ms-auto">
