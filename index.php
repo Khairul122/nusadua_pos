@@ -1,7 +1,6 @@
 <?php
 include 'koneksi.php';
 
-// Ambil data produk dari database
 $query = "SELECT * FROM produk";
 $result = mysqli_query($koneksi, $query);
 
