@@ -3,11 +3,11 @@
 <body class="login-page bg-body-secondary">
   <div class="login-box">
     <div class="login-logo">
-      <a href="../index2.html"><b>Admin</b>LTE</a>
+      <a href="../index2.html"><b>NUSA DUA TANI</a>
     </div>
     <div class="card">
       <div class="card-body login-card-body">
-        <p class="login-box-msg">Sign in to start your session</p>
+        <p class="login-box-msg">Silahkan Login</p>
         <form action="login-user.php" method="post">
           <div class="input-group mb-3">
             <input type="text" class="form-control" name="username" placeholder="Username" required />

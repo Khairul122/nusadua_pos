@@ -167,6 +167,59 @@ $no = 1;
                         </div>
                     </div>
 
+                    <!-- Widget Laporan Produk -->
+                    <div class="card mt-4">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="card-title">Laporan Produk</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="GET" action="c-produk.php" target="_blank">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label for="nama_pimpinan">Nama Pimpinan</label>
+                                        <input type="text" class="form-control" name="nama_pimpinan" id="nama_pimpinan" placeholder="Masukkan Nama Pimpinan" value="<?= isset($_GET['nama_pimpinan']) ? $_GET['nama_pimpinan'] : ''; ?>">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-success mt-3 mb-3">
+                                    Cetak Laporan Produk
+                                </button>
+                            </form>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Nama Produk</th>
+                                            <th>Merek</th>
+                                            <th>Harga Satuan</th>
+                                            <th>Stok</th>
+                                            <th>Satuan</th>
+                                            <th>Gambar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        $no = 1;
+                                        while ($row_produk = mysqli_fetch_assoc($result_produk_table)): ?>
+                                            <tr>
+                                                <td><?= $no++; ?></td>
+                                                <td><?= htmlspecialchars($row_produk['nama_produk']); ?></td>
+                                                <td><?= htmlspecialchars($row_produk['merek']); ?></td>
+                                                <td>Rp <?= number_format($row_produk['harga_satuan'], 0, ',', '.'); ?></td>
+                                                <td><?= htmlspecialchars($row_produk['stok']); ?></td>
+                                                <td><?= htmlspecialchars($row_produk['satuan']); ?></td>
+                                                <td>
+                                                    <img src="image/foto_produk/<?= htmlspecialchars($row_produk['gambar']); ?>" width="80" height="80" alt="Produk">
+                                                </td>
+                                            </tr>
+                                        <?php endwhile; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </main>
